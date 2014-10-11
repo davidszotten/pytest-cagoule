@@ -18,6 +18,9 @@ Then, to run the subset of tests that touch a particular file, use
     py.test --cagoule-select=path/to/file.py
 
 
+You probably want to configure your CI server to handle capturing.
+
+
 Installing
 ----------
 
