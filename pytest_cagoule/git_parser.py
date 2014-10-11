@@ -1,23 +1,23 @@
-#!/usr/bin/env python
-
 import re
 import subprocess
 
-import fileinput
-stream = fileinput.input()
+NULL = object()
 
 
 def get_next_marker(stream):
     for line in stream:
         if line.startswith('diff'):
-            # skip "index"
-            next(stream)
-            # grab "---" line
-            line = next(stream)
-            filename = line[6:]
+            # skip ahead until the '---' line
+            while not line.startswith('---'):
+                line = next(stream)
+
             # consume '+++' line
             next(stream)
-            return filename.strip()
+            if line == '--- /dev/null':
+                return NULL
+            else:
+                filename = line[6:]
+                return filename.strip()
 
         elif line.startswith('@@'):
             pattern = (
@@ -40,24 +40,24 @@ def get_diff_changes(diff):
             if marker is None:
                 break
 
+            if marker is NULL:
+                filename = None
             if isinstance(marker, basestring):
                 filename = marker
             elif isinstance(marker, dict):
                 del_start = int(marker['del_start'])
                 del_count = int(marker['del_count'] or 1)
                 del_end = del_start + del_count
-                yield filename, del_start, del_end
+                if filename is not None:
+                    yield filename, del_start, del_end
 
         except StopIteration:
             break
 
 
-def get_changes():
-    diff = subprocess.check_output(['git', 'diff', '--unified=0'])
+def get_changes(*git_diff_args):
+    diff = subprocess.check_output(
+        ['git', 'diff', '--unified=0'] + list(git_diff_args)
+    )
     for filename, start, end in get_diff_changes(diff):
         yield filename, start, end
-
-
-if __name__ == '__main__':
-    for filename, start, end in get_changes():
-        print '{}:{}-{}'.format(filename, start, end)
