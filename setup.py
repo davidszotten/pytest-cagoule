@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name="cagoule",
-    packages = ['cagoule'],
+    name="pytest-cagoule",
+    packages = ['pytest_cagoule'],
 
     entry_points = {
        'console_scripts': [
-          'cagoule = cagoule.cmdline:main',
+          'cagoule = pytest_cagoule.cmdline:main',
         ],
         'pytest11': [
-            'cagoule = cagoule.plugin',
+            'cagoule = pytest_cagoule.plugin',
         ]
     },
 )

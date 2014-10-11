@@ -1,9 +1,10 @@
 import sqlite3
 
 from coverage.control import Coverage
-from cagoule.select import get_node_ids
 
-from cagoule import DB_FILE
+from . import DB_FILE
+from .select import get_node_ids
+
 
 
 def pytest_addoption(parser):

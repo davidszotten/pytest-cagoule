@@ -1,6 +1,6 @@
 import sys
 
-from cagoule.select import get_node_ids
+from .select import get_node_ids
 
 
 def main():

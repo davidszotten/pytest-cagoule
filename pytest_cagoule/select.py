@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from cagoule import DB_FILE
+from . import DB_FILE
 
 
 def get_node_ids(spec):
@@ -26,8 +26,9 @@ def nodes_by_file(filename):
     return list(node_id for (node_id,) in cursor.fetchall())
 
 
-def nodes_by_file_and_line(filename, line_number):
+def nodes_by_file_and_line(filename, line_number_str):
     abs_filename = os.path.abspath(filename)
+    line_number = int(line_number_str)
 
     connection = sqlite3.connect(DB_FILE)
     cursor = connection.cursor()
