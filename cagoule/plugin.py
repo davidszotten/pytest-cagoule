@@ -1,20 +1,26 @@
 import sqlite3
 
 from coverage.control import Coverage
+from cagoule.select import get_node_ids
 
 from cagoule import DB_FILE
 
 
 def pytest_addoption(parser):
     parser.addoption(
-        '--cagoule-collect', action='store_true', dest='cagoule_collect',
-        help='collect coverage info for cagoule',
+        '--cagoule-capture', action='store_true', dest='cagoule_capture',
+        help='capture coverage info for cagoule',
     )
 
+    # TODO: better help text
+    parser.addoption(
+        '--cagoule-select', metavar='spec', action='store',
+        dest='cagoule_select', help='run only tests that cover the spec',
+    )
+    # coverage params, at least concurrency
 
-class CagoulePlugin(object):
-    cov = None
 
+class CagouleCapturePlugin(object):
     def __init__(self):
         self.cov = Coverage(source='.')
         self.data = {}
@@ -61,12 +67,37 @@ class CagoulePlugin(object):
         self.write_results()
 
 
+class CagouleSelectPlugin(object):
+    def __init__(self, spec):
+        selected = get_node_ids(spec)
+        self.selected = set(selected)
+
+    def pytest_collection_modifyitems(self, session, config, items):
+        covered = []
+        uncovered = []
+        for item in items:
+            if item.nodeid in self.selected:
+                covered.append(item)
+            else:
+                uncovered.append(item)
+
+        items[:] = covered
+        config.hook.pytest_deselected(items=uncovered)
+
+
 def pytest_configure(config):
-    if not config.getvalue('cagoule_collect'):
-        return
+    if (
+        config.getvalue('cagoule_capture') and
+        not config.pluginmanager.hasplugin('_cagoule_capture')
+    ):
+        plugin = CagouleCapturePlugin()
+        config.pluginmanager.register(plugin, '_cagoule_capture')
 
-    if config.pluginmanager.hasplugin('_cagoule'):
-        return
 
-    plugin = CagoulePlugin() #config.option, config.pluginmanager,
-    config.pluginmanager.register(plugin, '_cagoule')
+    spec = config.getvalue('cagoule_select')
+    if (
+        spec and
+        not config.pluginmanager.hasplugin('_cagoule_select')
+    ):
+        plugin = CagouleSelectPlugin(spec=spec)
+        config.pluginmanager.register(plugin, '_cagoule_select')
