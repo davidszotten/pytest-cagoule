@@ -1,8 +1,8 @@
-Cagoule
-=======
+Pytest-Cagoule
+==============
 
-**Cagoule** is a pytest plugin to find which tests interact with the code you've
-just changed.
+**Pytest-Cagoule** is a pytest plugin to find which tests interact with the
+code you've just changed.
 
 
 Usage
@@ -18,13 +18,12 @@ Then, to run the subset of tests that touch a particular file, use
     py.test --cagoule-select=path/to/file.py
 
 
-
 Installing
 ----------
 
 Install **cagoule** using ``pip``::
 
-    pip install cagoule
+    pip install pytest-cagoule
 
 
 License
