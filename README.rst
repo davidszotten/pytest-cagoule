@@ -1,7 +1,7 @@
-Pytest-Cagoule
+pytest-cagoule
 ==============
 
-**Pytest-Cagoule** is a pytest plugin to find which tests interact with the
+**pytest-cagoule** is a pytest plugin to find which tests interact with the
 code you've just changed.
 
 
