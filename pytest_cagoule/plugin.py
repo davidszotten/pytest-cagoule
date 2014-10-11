@@ -70,7 +70,7 @@ class CagouleCapturePlugin(object):
 
 class CagouleSelectPlugin(object):
     def __init__(self, spec):
-        selected = get_node_ids(spec)
+        selected = get_node_ids([spec])
         self.selected = set(selected)
 
     def pytest_collection_modifyitems(self, session, config, items):

@@ -29,8 +29,8 @@ def parse_spec(spec):
     return filename, start_line, end_line
 
 
-def get_node_ids(spec):
-    return get_nodes_from_db([spec])
+def get_node_ids(specs):
+    return get_nodes_from_db(specs)
 
 
 def get_query(specs):
@@ -53,7 +53,12 @@ def get_query(specs):
 
 
 def get_spec_filter(spec):
-    filename, start_line, end_line = parse_spec(spec)
+    # TODO: find where to best do this
+    if isinstance(spec, basestring):
+        spec = parse_spec(spec)
+
+    filename, start_line, end_line = spec
+
     filename = os.path.abspath(filename)
 
     lines_query, line_params = get_line_number_filter(start_line, end_line)
