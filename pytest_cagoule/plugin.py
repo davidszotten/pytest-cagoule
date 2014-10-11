@@ -3,6 +3,7 @@ import sqlite3
 from coverage.control import Coverage
 
 from . import DB_FILE
+from .git_parser import get_changes
 from .select import get_node_ids
 
 
@@ -17,6 +18,10 @@ def pytest_addoption(parser):
     parser.addoption(
         '--cagoule-select', metavar='spec', action='store',
         dest='cagoule_select', help='run only tests that cover the spec',
+    )
+    parser.addoption(
+        '--cagoule-git', '--diff', nargs='?', dest='cagoule_git', const='HEAD',
+        help='run only tests that cover files with git changes',
     )
     # coverage params, at least concurrency
 
@@ -69,8 +74,13 @@ class CagouleCapturePlugin(object):
 
 
 class CagouleSelectPlugin(object):
-    def __init__(self, spec):
-        selected = get_node_ids([spec])
+    def __init__(self, spec=None, git_spec=None):
+        if spec is not None:
+            specs = [spec]
+        elif git_spec is not None:
+            specs = get_changes(git_spec)
+
+        selected = get_node_ids(specs)
         self.selected = set(selected)
 
     def pytest_collection_modifyitems(self, session, config, items):
@@ -101,4 +111,13 @@ def pytest_configure(config):
         not config.pluginmanager.hasplugin('_cagoule_select')
     ):
         plugin = CagouleSelectPlugin(spec=spec)
+        config.pluginmanager.register(plugin, '_cagoule_select')
+
+
+    git_spec = config.getvalue('cagoule_git')
+    if (
+        git_spec and
+        not config.pluginmanager.hasplugin('_cagoule_select')
+    ):
+        plugin = CagouleSelectPlugin(git_spec=git_spec)
         config.pluginmanager.register(plugin, '_cagoule_select')
