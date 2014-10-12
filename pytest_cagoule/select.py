@@ -46,7 +46,8 @@ def get_query(specs):
             {}
         """.format(clauses)
     else:
-        filters = ""
+        return None, None
+
     full_params = tuple(chain(*params_list))
     full_query = """
         SELECT DISTINCT(node_id) FROM coverage
@@ -86,10 +87,9 @@ def get_line_number_filter(start_line, end_line):
 
 
 def get_nodes_from_db(specs):
-    if not specs:
-        return []
-
     query, params = get_query(specs)
+    if query is None:
+        return []
 
     connection = sqlite3.connect(DB_FILE)
     cursor = connection.cursor()
