@@ -1,9 +1,7 @@
-import sqlite3
-
 from coverage import coverage
 import six
 
-from . import DB_FILE
+from .db import get_connection
 from .git_parser import get_changes
 from .select import get_node_ids
 
@@ -58,10 +56,10 @@ class CagouleCapturePlugin(object):
                 yield node_id, filename, line
 
     def write_results(self):
-        cursor = sqlite3.connect(DB_FILE)
-        with cursor:
-            cursor.execute("DROP TABLE IF EXISTS coverage;")
-            cursor.execute("""
+        connection = get_connection()
+        with connection:
+            connection.execute("DROP TABLE IF EXISTS coverage;")
+            connection.execute("""
                 CREATE TABLE coverage (
                     node_id text,
                     filename text,
@@ -69,7 +67,7 @@ class CagouleCapturePlugin(object):
                     PRIMARY KEY(node_id, filename, line)
                 );
             """)
-            cursor.executemany(
+            connection.executemany(
                 "INSERT INTO coverage VALUES (?, ?, ?)",
                 self.data_for_insert()
             )

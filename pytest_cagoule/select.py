@@ -1,11 +1,10 @@
 from itertools import chain
 import os
 import re
-import sqlite3
 
 import six
 
-from . import DB_FILE
+from .db import get_connection, db_exists
 
 spec_re = re.compile(
     r'(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?'
@@ -86,19 +85,15 @@ def get_line_number_filter(start_line, end_line):
     return query, lines
 
 
-def get_nodes_from_db(specs):
+def get_node_ids(specs):
     query, params = get_query(specs)
     if query is None:
         return []
 
-    if not os.path.exists(DB_FILE):
+    if not db_exists():
         return []
 
-    connection = sqlite3.connect(DB_FILE)
+    connection = get_connection()
     cursor = connection.cursor()
     cursor.execute(query, params)
     return list(node_id for (node_id,) in cursor.fetchall())
-
-
-def get_node_ids(specs):
-    return get_nodes_from_db(specs)
