@@ -8,7 +8,8 @@ index 8902dc2..9de8bf2 100644
 --- a/README.rst
 +++ b/README.rst
 @@ -3,0 +4 @@ pytest-cagoule
-+"""
++
+"""
 
 diff2 = """diff --git a/README.rst b/README.rst
 index 8902dc2..f39170e 100644
@@ -26,7 +27,15 @@ index bbe47a8..e83a1a7 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -0,0 +1 @@
-+"""
++
+diff --git a/MANIFEST.in b/MANIFEST.in
+new file mode 100644
+index 0000000..0c73842
+--- /dev/null
++++ b/MANIFEST.in
+@@ -0,0 +1 @@
++include README.rst LICENSE
+"""
 
 
 def test_get_diff_changes_simple():
@@ -41,5 +50,6 @@ def test_get_diff_changes_multiple():
         ('README.rst', 3, 3),
         ('README.rst', 29, 33),
         ('setup.py', 0, 0),
+        # new files are ignored
     )
     assert tuple(get_diff_changes(diff2)) == expected
