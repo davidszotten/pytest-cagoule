@@ -34,27 +34,22 @@ def get_diff_changes(diff):
     filename = None
     stream = iter(diff.splitlines())
     while True:
-        # we could probably just not catch StopIteration, and rely on it
-        # bubbling to stop the iteration over get_changes higher up
-        # too tricky?
-        try:
-            marker = get_next_marker(stream)
-            if marker is None:
-                break
-
-            if marker is NULL:
-                filename = None
-            if isinstance(marker, six.string_types):
-                filename = marker
-            elif isinstance(marker, dict):
-                del_start = int(marker['del_start'])
-                del_count = int(marker['del_count'] or 1)
-                del_end = del_start + del_count
-                if filename is not None:
-                    yield filename, del_start, del_end
-
-        except StopIteration:
+        # Bad input could cause get_next_marker to raise StopIteration,
+        # but that will just (correctly) be equivalient to a return here.
+        marker = get_next_marker(stream)
+        if marker is None:
             break
+
+        if marker is NULL:
+            filename = None
+        if isinstance(marker, six.string_types):
+            filename = marker
+        elif isinstance(marker, dict):
+            del_start = int(marker['del_start'])
+            del_count = int(marker['del_count'] or 1)
+            del_end = del_start + del_count
+            if filename is not None:
+                yield filename, del_start, del_end
 
 
 def get_changes(*git_diff_args):
