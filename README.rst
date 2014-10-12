@@ -47,10 +47,10 @@ Install **pytest-cagoule** using ``pip``::
 Caveats
 ^^^^^^^
 
-Only lines executed *during* the test run are captured. This often excludes
-module level code, which is executed at *import* time, before the test starts.
-Also, tests are of course registered against the code as it was when data was
-captured, so no new tests will be included.
+Only lines executed *during individual test runs* are captured. This often
+excludes module level code, which is executed at *import* time, before the test
+starts.  Also, tests are of course registered against the code as it was when
+data was captured, so if using ``--diff``, no new tests will be included.
 
 
 Inspiration
