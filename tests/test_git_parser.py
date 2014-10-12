@@ -53,3 +53,7 @@ def test_get_diff_changes_multiple():
         # new files are ignored
     )
     assert tuple(get_diff_changes(diff2)) == expected
+
+
+def test_manformed_diff():
+    assert tuple(get_diff_changes("diff foo\nbar")) == ()
