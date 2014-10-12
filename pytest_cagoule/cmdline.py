@@ -20,4 +20,5 @@ def main():
 
     node_ids = get_node_ids(specs)
 
-    print('\n'.join(node_ids))
+    if node_ids:
+        print('\n'.join(node_ids))

@@ -90,6 +90,9 @@ def get_line_number_filter(start_line, end_line):
 
 
 def get_nodes_from_db(specs):
+    if not specs:
+        return []
+
     query, params = get_query(specs)
 
     connection = sqlite3.connect(DB_FILE)
