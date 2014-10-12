@@ -21,12 +21,12 @@ Then, to run the subset of tests that touch a particular file, use
 
     py.test --cagoule-select=path/to/file.py
 
-If you are using `git`, cagoule can find the files and lines that have changes
+If you are using ``git``, cagoule can find the files and lines that have changes
 in the current working directory::
 
     py.test --diff
 
-or for any other diff spec that git can parse, using `--diff=<spec>`, e.g.
+or for any other diff spec that git can parse, using ``--diff=<spec>``, e.g.
 
 ::
 
