@@ -20,4 +20,5 @@ deploy:
     secure: Nn4tpP7CAPdqayLFiPUOHrF5XGCr/Wt0FYgaGmA6pURYVIbys7mu29vZpUGQnf0quN9GAVL6pdeAT9D2CwbVn1KFfsgAVHqXvuso5B+pJ5LdjOCzaVFfK2HPci8iaclberx9ZxqlaoWhNI2fJd5mR4c93rc+dcS7jVfNOdfB/LM=
   on:
     tags: true
+    all_branches: true
     repo: davidszotten/pytest-cagoule
