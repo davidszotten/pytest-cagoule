@@ -31,10 +31,6 @@ def parse_spec(spec):
     return filename, start_line, end_line
 
 
-def get_node_ids(specs):
-    return get_nodes_from_db(specs)
-
-
 def get_query(specs):
     query_list = []
     params_list = []
@@ -99,3 +95,7 @@ def get_nodes_from_db(specs):
     cursor = connection.cursor()
     cursor.execute(query, params)
     return list(node_id for (node_id,) in cursor.fetchall())
+
+
+def get_node_ids(specs):
+    return get_nodes_from_db(specs)
