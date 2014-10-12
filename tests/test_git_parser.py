@@ -36,7 +36,6 @@ def test_get_diff_changes_simple():
     assert tuple(get_diff_changes(diff1)) == expected
 
 
-
 def test_get_diff_changes_multiple():
     expected = (
         ('README.rst', 3, 3),

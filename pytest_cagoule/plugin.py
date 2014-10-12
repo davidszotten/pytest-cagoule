@@ -8,7 +8,6 @@ from .git_parser import get_changes
 from .select import get_node_ids
 
 
-
 def pytest_addoption(parser):
     parser.addoption(
         '--cagoule-capture', action='store_true', dest='cagoule_capture',
@@ -105,7 +104,6 @@ def pytest_configure(config):
         plugin = CagouleCapturePlugin()
         config.pluginmanager.register(plugin, '_cagoule_capture')
 
-
     spec = config.getvalue('cagoule_select')
     if (
         spec and
@@ -113,7 +111,6 @@ def pytest_configure(config):
     ):
         plugin = CagouleSelectPlugin(spec=spec)
         config.pluginmanager.register(plugin, '_cagoule_select')
-
 
     git_spec = config.getvalue('cagoule_git')
     if (
