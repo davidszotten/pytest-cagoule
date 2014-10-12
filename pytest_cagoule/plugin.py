@@ -29,16 +29,21 @@ def pytest_addoption(parser):
 class CagouleCapturePlugin(object):
     def __init__(self):
         self.cov = coverage(source='.')
+        self.tracing = False
         self.data = {}
 
     def pytest_runtest_setup(self, item):
         cov = self.cov
         cov.erase()
         cov.start()
+        self.tracing = True
 
     def pytest_runtest_teardown(self, item):
         cov = self.cov
+        if not self.tracing:
+            return
         cov.stop()
+        self.tracing = False
         cov._harvest_data()
 
         data = []
