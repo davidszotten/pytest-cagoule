@@ -38,6 +38,19 @@ Install **pytest-cagoule** using ``pip``::
     pip install pytest-cagoule
 
 
+Caveats
+^^^^^^^
+
+Only lines executed *during* the test run are captured. This often excludes
+module level code, which is executed at *import* time, before the test starts.
+
+
+Inspiration
+^^^^^^^^^^^
+
+Idea from ``nose-knows``
+
+
 License
 -------
 

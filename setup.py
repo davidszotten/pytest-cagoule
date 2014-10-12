@@ -12,7 +12,6 @@ setup(
 
     description='Pytest plugin to only run tests affected by changes',
     long_description=long_description,
-
     url='https://github.com/davidszotten/pytest-cagoule',
 
     author='David Szotten',
