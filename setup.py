@@ -24,6 +24,7 @@ setup(
     install_requires=[
         'coverage>=4.0a1',
         'pytest',
+        'six',
     ],
 
     entry_points = {

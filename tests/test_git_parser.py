@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from pytest_cagoule.git_parser import get_diff_changes
 
 

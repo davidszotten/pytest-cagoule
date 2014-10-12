@@ -1,6 +1,8 @@
 import re
 import subprocess
 
+import six
+
 NULL = object()
 
 
@@ -42,7 +44,7 @@ def get_diff_changes(diff):
 
             if marker is NULL:
                 filename = None
-            if isinstance(marker, basestring):
+            if isinstance(marker, six.string_types):
                 filename = marker
             elif isinstance(marker, dict):
                 del_start = int(marker['del_start'])
@@ -57,7 +59,8 @@ def get_diff_changes(diff):
 
 def get_changes(*git_diff_args):
     diff = subprocess.check_output(
-        ['git', 'diff', '--unified=0'] + list(git_diff_args)
+        ['git', 'diff', '--unified=0'] + list(git_diff_args),
+        universal_newlines=True,
     )
     for filename, start, end in get_diff_changes(diff):
         yield filename, start, end

@@ -3,6 +3,8 @@ import os
 import re
 import sqlite3
 
+import six
+
 from . import DB_FILE
 
 spec_re = re.compile(
@@ -41,20 +43,26 @@ def get_query(specs):
         query_list.append(query)
         params_list.append(params)
 
-    filters = '\n OR '.join(map("({})".format, query_list))
+    if query_list:
+        clauses = '\n OR '.join(map("({})".format, query_list))
+        filters = """
+            WHERE
+            {}
+        """.format(clauses)
+    else:
+        filters = ""
     full_params = tuple(chain(*params_list))
     full_query = """
         SELECT DISTINCT(node_id) FROM coverage
-        WHERE
-            {}
-        order by node_id
+        {}
+        ORDER BY node_id
     """.format(filters)
     return full_query, full_params
 
 
 def get_spec_filter(spec):
     # TODO: find where to best do this
-    if isinstance(spec, basestring):
+    if isinstance(spec, six.string_types):
         spec = parse_spec(spec)
 
     filename, start_line, end_line = spec
@@ -74,7 +82,7 @@ def get_line_number_filter(start_line, end_line):
     if end_line is None:
         end_line = start_line
 
-    lines = tuple(xrange(start_line, end_line + 1))
+    lines = tuple(range(start_line, end_line + 1))
     query = 'AND ({})'.format(
         ' OR '.join('line = ?' for line in lines)
     )

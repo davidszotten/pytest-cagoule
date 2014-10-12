@@ -43,7 +43,7 @@ def test_query():
         WHERE
             (filename = ? AND (line = ?))
             OR (filename = ? AND (line = ? OR line = ? OR line = ?))
-        order by node_id
+        ORDER BY node_id
     """
     expected_lines = [
         line.strip() for line in expected_query.split('\n') if line.strip()
