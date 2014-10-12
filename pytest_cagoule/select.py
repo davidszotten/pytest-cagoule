@@ -91,6 +91,9 @@ def get_nodes_from_db(specs):
     if query is None:
         return []
 
+    if not os.path.exists(DB_FILE):
+        return []
+
     connection = sqlite3.connect(DB_FILE)
     cursor = connection.cursor()
     cursor.execute(query, params)
