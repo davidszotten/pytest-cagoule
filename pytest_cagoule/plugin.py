@@ -1,6 +1,7 @@
 import sqlite3
 
-from coverage.control import Coverage
+from coverage import coverage
+import six
 
 from . import DB_FILE
 from .git_parser import get_changes
@@ -28,7 +29,7 @@ def pytest_addoption(parser):
 
 class CagouleCapturePlugin(object):
     def __init__(self):
-        self.cov = Coverage(source='.')
+        self.cov = coverage(source='.')
         self.data = {}
 
     def pytest_runtest_setup(self, item):
@@ -42,7 +43,7 @@ class CagouleCapturePlugin(object):
         cov._harvest_data()
 
         data = []
-        for filename, lines in cov.data.lines.iteritems():
+        for filename, lines in six.iteritems(cov.data.lines):
             for line in lines:
                 data.append((filename, line))
         self.data[item.nodeid] = data
@@ -62,7 +63,7 @@ class CagouleCapturePlugin(object):
             """)
             cursor.execute("DELETE FROM coverage")
             # TODO: bulk insert
-            for node_id, lines in self.data.iteritems():
+            for node_id, lines in six.iteritems(self.data):
                 for filename, line in lines:
                     cursor.execute(
                         "INSERT INTO coverage VALUES (?, ?, ?)",
