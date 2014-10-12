@@ -47,11 +47,15 @@ class CagouleCapturePlugin(object):
                 data.append((filename, line))
         self.data[item.nodeid] = data
 
+    def data_for_insert(self):
+        for node_id, lines in six.iteritems(self.data):
+            for filename, line in lines:
+                yield node_id, filename, line
+
     def write_results(self):
         cursor = sqlite3.connect(DB_FILE)
         with cursor:
             cursor.execute("DROP TABLE IF EXISTS coverage;")
-
             cursor.execute("""
                 CREATE TABLE coverage (
                     node_id text,
@@ -60,14 +64,10 @@ class CagouleCapturePlugin(object):
                     PRIMARY KEY(node_id, filename, line)
                 );
             """)
-            cursor.execute("DELETE FROM coverage")
-            # TODO: bulk insert
-            for node_id, lines in six.iteritems(self.data):
-                for filename, line in lines:
-                    cursor.execute(
-                        "INSERT INTO coverage VALUES (?, ?, ?)",
-                        (node_id, filename, line)
-                    )
+            cursor.executemany(
+                "INSERT INTO coverage VALUES (?, ?, ?)",
+                self.data_for_insert()
+            )
 
     def pytest_sessionfinish(self):
         self.write_results()
