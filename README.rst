@@ -8,12 +8,16 @@ code you've just changed.
 Usage
 -----
 
-Collect coverage information using ``--cagoule-capture``::
+Collect coverage information using ``--cagoule-capture``
+
+::
 
     py.test --cagoule-capture
 
 Then, to run the subset of tests that touch a particular file, use
-``cagoule-select=<filename>[:line number]``, e.g.::
+``cagoule-select=<filename>[:line number]``, e.g.
+
+::
 
     py.test --cagoule-select=path/to/file.py
 
@@ -22,7 +26,9 @@ in the current working directory::
 
     py.test --diff
 
-or for any other diff spec that git can parse, using `--diff=[spec]`, e.g::
+or for any other diff spec that git can parse, using `--diff=<spec>`, e.g.
+
+::
 
     py.test --diff=head~1..head
 
