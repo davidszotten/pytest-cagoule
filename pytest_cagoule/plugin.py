@@ -1,9 +1,19 @@
+from collections import defaultdict
+from functools import partial
+from itertools import count
+
 from coverage import coverage
 import six
 
 from .db import get_connection
 from .git_parser import get_changes
 from .select import get_node_ids
+
+# generates a stream of integers when called
+filename_ids = partial(next, count())
+nodeid_ids = partial(next, count())
+filename_map = defaultdict(filename_ids)
+nodeid_map = defaultdict(nodeid_ids)
 
 
 def pytest_addoption(parser):
@@ -35,13 +45,35 @@ class CagouleCapturePlugin(object):
         connection = get_connection()
         with connection:
             connection.execute("DROP TABLE IF EXISTS coverage;")
+            connection.execute("DROP TABLE IF EXISTS nodeids;")
+            connection.execute("DROP TABLE IF EXISTS files;")
+            connection.execute("DROP INDEX IF EXISTS coverage_nodeid;")
+            connection.execute("DROP INDEX IF EXISTS coverage_fileid;")
+            connection.execute("""
+                CREATE TABLE files (
+                    id INTEGER PRIMARY KEY,
+                    filename TEXT
+                );
+            """)
+            connection.execute("""
+                CREATE TABLE nodeids (
+                    id INTEGER PRIMARY KEY,
+                    nodeid TEXT
+                );
+            """)
             connection.execute("""
                 CREATE TABLE coverage (
-                    node_id text,
-                    filename text,
-                    line int,
-                    PRIMARY KEY(node_id, filename, line)
+                    nodeid_id INTEGER REFERENCES nodeids,
+                    file_id INTEGER REFERENCES files,
+                    line INTEGER,
+                    PRIMARY KEY(nodeid_id, file_id, line)
                 );
+            """)
+            connection.execute("""
+                CREATE INDEX coverage_nodeid ON coverage(nodeid_id);
+            """)
+            connection.execute("""
+                CREATE INDEX coverage_file ON coverage(file_id);
             """)
 
     def pytest_runtest_setup(self, item):
@@ -60,17 +92,36 @@ class CagouleCapturePlugin(object):
 
         self.write_results(item.nodeid, cov.data)
 
-    def data_for_insert(self, node_id, cov_data):
+    def filename_values(self, cov_data):
         for filename, lines in six.iteritems(cov_data.lines):
-            for line in lines:
-                yield node_id, filename, line
+            file_id = filename_map[filename]
+            yield file_id, filename
 
-    def write_results(self, node_id, cov_data):
+    def nodeid_values(self, nodeid):
+        nodeid_id = nodeid_map[nodeid]
+        yield nodeid_id, nodeid
+
+    def coverage_values(self, nodeid, cov_data):
+        nodeid_id = nodeid_map[nodeid]
+        for filename, lines in six.iteritems(cov_data.lines):
+            file_id = filename_map[filename]
+            for line in lines:
+                yield nodeid_id, file_id, line
+
+    def write_results(self, nodeid, cov_data):
         connection = get_connection()
         with connection:
             connection.executemany(
+                "REPLACE INTO nodeids VALUES (?, ?)",
+                self.nodeid_values(nodeid)
+            )
+            connection.executemany(
+                "REPLACE INTO files VALUES (?, ?)",
+                self.filename_values(cov_data)
+            )
+            connection.executemany(
                 "INSERT INTO coverage VALUES (?, ?, ?)",
-                self.data_for_insert(node_id, cov_data)
+                self.coverage_values(nodeid, cov_data)
             )
 
 
