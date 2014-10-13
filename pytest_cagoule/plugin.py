@@ -28,7 +28,21 @@ class CagouleCapturePlugin(object):
     def __init__(self):
         self.cov = coverage(source='.')
         self.tracing = False
-        self.data = {}
+        self.setup_db()
+
+
+    def setup_db(self):
+        connection = get_connection()
+        with connection:
+            connection.execute("DROP TABLE IF EXISTS coverage;")
+            connection.execute("""
+                CREATE TABLE coverage (
+                    node_id text,
+                    filename text,
+                    line int,
+                    PRIMARY KEY(node_id, filename, line)
+                );
+            """)
 
     def pytest_runtest_setup(self, item):
         cov = self.cov
@@ -44,36 +58,20 @@ class CagouleCapturePlugin(object):
         self.tracing = False
         cov._harvest_data()
 
-        data = []
-        for filename, lines in six.iteritems(cov.data.lines):
-            for line in lines:
-                data.append((filename, line))
-        self.data[item.nodeid] = data
+        self.write_results(item.nodeid, cov.data)
 
-    def data_for_insert(self):
-        for node_id, lines in six.iteritems(self.data):
-            for filename, line in lines:
+    def data_for_insert(self, node_id, cov_data):
+        for filename, lines in six.iteritems(cov_data.lines):
+            for line in lines:
                 yield node_id, filename, line
 
-    def write_results(self):
+    def write_results(self, node_id, cov_data):
         connection = get_connection()
         with connection:
-            connection.execute("DROP TABLE IF EXISTS coverage;")
-            connection.execute("""
-                CREATE TABLE coverage (
-                    node_id text,
-                    filename text,
-                    line int,
-                    PRIMARY KEY(node_id, filename, line)
-                );
-            """)
             connection.executemany(
                 "INSERT INTO coverage VALUES (?, ?, ?)",
-                self.data_for_insert()
+                self.data_for_insert(node_id, cov_data)
             )
-
-    def pytest_sessionfinish(self):
-        self.write_results()
 
 
 class CagouleSelectPlugin(object):
