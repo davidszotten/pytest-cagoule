@@ -38,8 +38,6 @@ class CagouleCapturePlugin(object):
     def __init__(self):
         self.cov = coverage(source='.')
         self.tracing = False
-        self.setup_db()
-
 
     def setup_db(self):
         connection = get_connection()
@@ -76,22 +74,6 @@ class CagouleCapturePlugin(object):
                 CREATE INDEX coverage_file ON coverage(file_id);
             """)
 
-    def pytest_runtest_setup(self, item):
-        cov = self.cov
-        cov.erase()
-        cov.start()
-        self.tracing = True
-
-    def pytest_runtest_teardown(self, item):
-        cov = self.cov
-        if not self.tracing:
-            return
-        cov.stop()
-        self.tracing = False
-        cov._harvest_data()
-
-        self.write_results(item.nodeid, cov.data)
-
     def filename_values(self, cov_data):
         for filename, lines in six.iteritems(cov_data.lines):
             file_id = filename_map[filename]
@@ -123,6 +105,33 @@ class CagouleCapturePlugin(object):
                 "INSERT INTO coverage VALUES (?, ?, ?)",
                 self.coverage_values(nodeid, cov_data)
             )
+
+    def pytest_sessionstart(self):
+        self.setup_db()
+
+    def vacuum_db(self):
+        connection = get_connection()
+        with connection:
+            connection.execute("vacuum")
+
+    def pytest_runtest_setup(self, item):
+        cov = self.cov
+        cov.erase()
+        cov.start()
+        self.tracing = True
+
+    def pytest_runtest_teardown(self, item):
+        cov = self.cov
+        if not self.tracing:
+            return
+        cov.stop()
+        self.tracing = False
+        cov._harvest_data()
+
+        self.write_results(item.nodeid, cov.data)
+
+    def pytest_sessionfinish(self):
+        self.vacuum_db()
 
 
 class CagouleSelectPlugin(object):
