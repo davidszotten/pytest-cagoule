@@ -4,7 +4,10 @@ noop:
 .PHONY: noop
 
 pytest:
-	coverage run --source pytest_cagoule -m pytest --cagoule-capture tests
+	coverage erase
+	coverage run -p --source pytest_cagoule -m pytest tests
+	coverage run -p --source pytest_cagoule -m pytest --cagoule-capture tests
+	coverage combine
 	coverage report --show-missing
 
 flake8:

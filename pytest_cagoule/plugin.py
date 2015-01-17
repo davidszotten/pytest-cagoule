@@ -100,7 +100,7 @@ class CagouleCapturePlugin(object):
             self.filename_values(cov_data)
         )
         connection.executemany(
-            "INSERT INTO coverage VALUES (?, ?, ?)",
+            "REPLACE INTO coverage VALUES (?, ?, ?)",
             self.coverage_values(nodeid, cov_data)
         )
 

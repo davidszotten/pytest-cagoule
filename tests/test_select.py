@@ -24,7 +24,8 @@ def test_line_get_line_number_filter(
         (
             '/tmp/foo.py:3-5',
             'filename = ? AND (line = ? OR line = ? OR line = ?)',
-            ('/tmp/foo.py', 3, 4, 5)),
+            ('/tmp/foo.py', 3, 4, 5),
+        ),
     )
 )
 def test_get_spec_filter(spec, expected_query, expected_params):
