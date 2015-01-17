@@ -13,8 +13,6 @@ spec_re = re.compile(
 
 def parse_spec(spec):
     match = spec_re.match(spec)
-    if match is None:
-        return []
     matches = match.groupdict()
 
     filename = matches['filename']
