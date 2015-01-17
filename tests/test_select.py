@@ -39,11 +39,13 @@ def test_query():
         line.strip() for line in query.split('\n') if line.strip()
     ]
     expected_query = """
-        SELECT DISTINCT(node_id) FROM coverage
+        SELECT DISTINCT(nodeid) FROM coverage
+            JOIN nodeids on coverage.nodeid_id = nodeids.id
+            JOIN files on coverage.file_id = files.id
         WHERE
             (filename = ? AND (line = ?))
             OR (filename = ? AND (line = ? OR line = ? OR line = ?))
-        ORDER BY node_id
+        ORDER BY nodeid
     """
     expected_lines = [
         line.strip() for line in expected_query.split('\n') if line.strip()

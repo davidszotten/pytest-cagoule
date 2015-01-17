@@ -49,9 +49,11 @@ def get_query(specs):
 
     full_params = tuple(chain(*params_list))
     full_query = """
-        SELECT DISTINCT(node_id) FROM coverage
+        SELECT DISTINCT(nodeid) FROM coverage
+            JOIN nodeids on coverage.nodeid_id = nodeids.id
+            JOIN files on coverage.file_id = files.id
         {}
-        ORDER BY node_id
+        ORDER BY nodeid
     """.format(filters)
     return full_query, full_params
 

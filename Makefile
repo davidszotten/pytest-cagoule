@@ -10,4 +10,4 @@ pytest:
 flake8:
 	flake8 pytest_cagoule tests
 
-test: pytest flake8
+test: flake8 pytest
