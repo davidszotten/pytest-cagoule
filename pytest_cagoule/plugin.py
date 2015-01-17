@@ -40,39 +40,38 @@ class CagouleCapturePlugin(object):
         self.tracing = False
 
     def setup_db(self):
-        connection = get_connection()
-        with connection:
-            connection.execute("DROP TABLE IF EXISTS coverage;")
-            connection.execute("DROP TABLE IF EXISTS nodeids;")
-            connection.execute("DROP TABLE IF EXISTS files;")
-            connection.execute("DROP INDEX IF EXISTS coverage_nodeid;")
-            connection.execute("DROP INDEX IF EXISTS coverage_fileid;")
-            connection.execute("""
-                CREATE TABLE files (
-                    id INTEGER PRIMARY KEY,
-                    filename TEXT
-                );
-            """)
-            connection.execute("""
-                CREATE TABLE nodeids (
-                    id INTEGER PRIMARY KEY,
-                    nodeid TEXT
-                );
-            """)
-            connection.execute("""
-                CREATE TABLE coverage (
-                    nodeid_id INTEGER REFERENCES nodeids,
-                    file_id INTEGER REFERENCES files,
-                    line INTEGER,
-                    PRIMARY KEY(nodeid_id, file_id, line)
-                );
-            """)
-            connection.execute("""
-                CREATE INDEX coverage_nodeid ON coverage(nodeid_id);
-            """)
-            connection.execute("""
-                CREATE INDEX coverage_file ON coverage(file_id);
-            """)
+        connection = self.connection
+        connection.execute("DROP TABLE IF EXISTS coverage;")
+        connection.execute("DROP TABLE IF EXISTS nodeids;")
+        connection.execute("DROP TABLE IF EXISTS files;")
+        connection.execute("DROP INDEX IF EXISTS coverage_nodeid;")
+        connection.execute("DROP INDEX IF EXISTS coverage_fileid;")
+        connection.execute("""
+            CREATE TABLE files (
+                id INTEGER PRIMARY KEY,
+                filename TEXT
+            );
+        """)
+        connection.execute("""
+            CREATE TABLE nodeids (
+                id INTEGER PRIMARY KEY,
+                nodeid TEXT
+            );
+        """)
+        connection.execute("""
+            CREATE TABLE coverage (
+                nodeid_id INTEGER REFERENCES nodeids,
+                file_id INTEGER REFERENCES files,
+                line INTEGER,
+                PRIMARY KEY(nodeid_id, file_id, line)
+            );
+        """)
+        connection.execute("""
+            CREATE INDEX coverage_nodeid ON coverage(nodeid_id);
+        """)
+        connection.execute("""
+            CREATE INDEX coverage_file ON coverage(file_id);
+        """)
 
     def filename_values(self, cov_data):
         for filename, lines in six.iteritems(cov_data.lines):
@@ -91,28 +90,27 @@ class CagouleCapturePlugin(object):
                 yield nodeid_id, file_id, line
 
     def write_results(self, nodeid, cov_data):
-        connection = get_connection()
-        with connection:
-            connection.executemany(
-                "REPLACE INTO nodeids VALUES (?, ?)",
-                self.nodeid_values(nodeid)
-            )
-            connection.executemany(
-                "REPLACE INTO files VALUES (?, ?)",
-                self.filename_values(cov_data)
-            )
-            connection.executemany(
-                "INSERT INTO coverage VALUES (?, ?, ?)",
-                self.coverage_values(nodeid, cov_data)
-            )
+        connection = self.connection
+        connection.executemany(
+            "REPLACE INTO nodeids VALUES (?, ?)",
+            self.nodeid_values(nodeid)
+        )
+        connection.executemany(
+            "REPLACE INTO files VALUES (?, ?)",
+            self.filename_values(cov_data)
+        )
+        connection.executemany(
+            "INSERT INTO coverage VALUES (?, ?, ?)",
+            self.coverage_values(nodeid, cov_data)
+        )
 
     def pytest_sessionstart(self):
+        self.connection = get_connection()
         self.setup_db()
 
     def vacuum_db(self):
-        connection = get_connection()
-        with connection:
-            connection.execute("vacuum")
+        connection = self.connection
+        connection.execute("vacuum")
 
     def pytest_runtest_setup(self, item):
         cov = self.cov
@@ -132,6 +130,7 @@ class CagouleCapturePlugin(object):
 
     def pytest_sessionfinish(self):
         self.vacuum_db()
+        self.connection.close()
 
 
 class CagouleSelectPlugin(object):
