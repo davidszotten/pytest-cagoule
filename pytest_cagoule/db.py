@@ -10,4 +10,5 @@ def db_exists():
 
 def get_connection():
     connection = sqlite3.connect(DB_FILE)
+    connection.text_factory = bytes
     return connection
