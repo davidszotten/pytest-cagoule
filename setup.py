@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst')) as handle:
 
 setup(
     name="pytest-cagoule",
-    version='0.1.1',
+    version='0.2.0',
 
     description='Pytest plugin to only run tests affected by changes',
     long_description=long_description,

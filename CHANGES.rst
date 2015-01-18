@@ -1,3 +1,10 @@
+Version 0.2.0
+-------------
+
+Normalise storage and write out data after each test to improve memory use.
+Bugfixes for non-ascii and duplicate nodeids.
+
+
 Version 0.1.1
 -------------
 
