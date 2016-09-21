@@ -1,7 +1,7 @@
 import re
 import subprocess
 
-import six
+from .compat import string_types
 
 NULL = object()
 
@@ -42,7 +42,7 @@ def get_diff_changes(diff):
 
         if marker is NULL:
             filename = None
-        if isinstance(marker, six.string_types):
+        if isinstance(marker, string_types):
             filename = marker
         elif isinstance(marker, dict):
             del_start = int(marker['del_start'])

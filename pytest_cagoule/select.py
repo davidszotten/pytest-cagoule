@@ -2,8 +2,7 @@ from itertools import chain
 import os
 import re
 
-import six
-
+from .compat import string_types
 from .db import get_connection, db_exists
 
 spec_re = re.compile(
@@ -58,7 +57,7 @@ def get_query(specs):
 
 def get_spec_filter(spec):
     # TODO: find where to best do this
-    if isinstance(spec, six.string_types):
+    if isinstance(spec, string_types):
         spec = parse_spec(spec)
 
     filename, start_line, end_line = spec
