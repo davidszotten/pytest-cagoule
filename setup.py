@@ -20,7 +20,7 @@ setup(
     packages=['pytest_cagoule'],
 
     install_requires=[
-        'coverage',
+        'coverage>=4',
         'pytest',
         'six',
     ],

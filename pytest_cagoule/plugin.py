@@ -3,7 +3,6 @@ from functools import partial
 from itertools import count
 
 from coverage import coverage
-import six
 
 from .db import get_connection
 from .git_parser import get_changes
@@ -74,7 +73,7 @@ class CagouleCapturePlugin(object):
         """)
 
     def filename_values(self, cov_data):
-        for filename, lines in six.iteritems(cov_data.lines):
+        for filename in cov_data.measured_files():
             file_id = filename_map[filename]
             yield file_id, filename
 
@@ -84,9 +83,9 @@ class CagouleCapturePlugin(object):
 
     def coverage_values(self, nodeid, cov_data):
         nodeid_id = nodeid_map[nodeid]
-        for filename, lines in six.iteritems(cov_data.lines):
+        for filename in cov_data.measured_files():
             file_id = filename_map[filename]
-            for line in lines:
+            for line in cov_data.lines(filename):
                 yield nodeid_id, file_id, line
 
     def write_results(self, nodeid, cov_data):
@@ -124,7 +123,7 @@ class CagouleCapturePlugin(object):
             return
         cov.stop()
         self.tracing = False
-        cov._harvest_data()
+        cov.save()
 
         self.write_results(item.nodeid, cov.data)
 
