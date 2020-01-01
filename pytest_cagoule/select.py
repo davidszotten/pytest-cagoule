@@ -2,25 +2,24 @@ from itertools import chain
 import os
 import re
 
-from .compat import string_types
-from .db import get_connection, db_exists
+from coverage import numbits
 
-spec_re = re.compile(
-    r'(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?'
-)
+from .db import get_connection, db_exists, get_coverage_config
+
+spec_re = re.compile(r"(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?")
 
 
 def parse_spec(spec):
     match = spec_re.match(spec)
     matches = match.groupdict()
 
-    filename = matches['filename']
+    filename = matches["filename"]
 
-    start_line = matches.get('start_line')
+    start_line = matches.get("start_line")
     if start_line is not None:
         start_line = int(start_line)
 
-    end_line = matches.get('end_line')
+    end_line = matches.get("end_line")
     if end_line is not None:
         end_line = int(end_line)
 
@@ -36,52 +35,57 @@ def get_query(specs):
         params_list.append(params)
 
     if query_list:
-        clauses = '\n OR '.join(map("({})".format, query_list))
+        clauses = "\n OR ".join(map("({})".format, query_list))
         filters = """
-            WHERE
-            {}
-        """.format(clauses)
+        WHERE
+        {}
+        """.format(
+            clauses
+        )
     else:
         return None, None
 
     full_params = tuple(chain(*params_list))
     full_query = """
-        SELECT DISTINCT(nodeid) FROM coverage
-            JOIN nodeids on coverage.nodeid_id = nodeids.id
-            JOIN files on coverage.file_id = files.id
+        SELECT DISTINCT(context) FROM
+        context
+        JOIN line_bits ON line_bits.context_id = context.id
+        JOIN file ON line_bits.file_id = file.id
         {}
-        ORDER BY nodeid
-    """.format(filters)
+        ORDER BY context
+    """.format(
+        filters
+    )
     return full_query, full_params
 
 
 def get_spec_filter(spec):
     # TODO: find where to best do this
-    if isinstance(spec, string_types):
+    if isinstance(spec, str):
         spec = parse_spec(spec)
 
     filename, start_line, end_line = spec
 
-    filename = os.path.abspath(filename)
+    config = get_coverage_config()
+    if not config.relative_files:
+        filename = os.path.abspath(filename)
 
     lines_query, line_params = get_line_number_filter(start_line, end_line)
-    query = 'filename = ? ' + lines_query
+    query = "path = ? " + lines_query
     params = (filename,) + line_params
     return query, params
 
 
 def get_line_number_filter(start_line, end_line):
     if start_line is None:
-        return '', ()
+        return "", ()
 
     if end_line is None:
         end_line = start_line
 
-    lines = tuple(range(start_line, end_line + 1))
-    query = 'AND ({})'.format(
-        ' OR '.join('line = ?' for line in lines)
-    )
-    return query, lines
+    lines_numbits = numbits.nums_to_numbits(range(start_line, end_line + 1))
+    query = "AND numbits_any_intersection(numbits, ?)"
+    return query, (lines_numbits,)
 
 
 def get_node_ids(specs):
@@ -95,4 +99,7 @@ def get_node_ids(specs):
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute(query, params)
-    return list(node_id for (node_id,) in cursor.fetchall())
+
+    contexts = [context.decode() for (context,) in cursor.fetchall()]
+    node_ids = [context.split("|")[0] for context in contexts]
+    return list(node_ids)

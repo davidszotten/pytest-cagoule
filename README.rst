@@ -8,11 +8,11 @@ code you've just changed.
 Usage
 -----
 
-Collect coverage information using ``--cagoule-capture``
+Collect coverage information using ``--pytest-cov`` coverage contexts.
 
 ::
 
-    py.test --cagoule-capture
+    py.test --cov --cov-context=test
 
 Then, to run the subset of tests that touch a particular file, use
 ``cagoule-select=<filename>[:line number]``, e.g.
