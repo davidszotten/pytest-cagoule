@@ -11,10 +11,12 @@ def get_next_marker(stream):
         if line.startswith('diff'):
             # skip ahead until the '---' line
             while not line.startswith('---'):
-                line = next(stream)
+                line = next(stream, None)
+                if line is None:
+                    return None
 
             # consume '+++' line
-            next(stream)
+            next(stream, None)
             if line == '--- /dev/null':
                 return NULL
             else:
