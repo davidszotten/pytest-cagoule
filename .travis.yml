@@ -8,7 +8,8 @@ python:
 
 install:
   - pip install flake8
-  - pip install .
+  - pip install pytest-cov
+  - pip install -e .
 
 script: make test
 

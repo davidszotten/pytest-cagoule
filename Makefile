@@ -4,9 +4,9 @@ noop:
 .PHONY: noop
 
 pytest:
-	coverage erase
+	pytest --cov=pytest_cagoule --cov-context=test
+	coverage run -p --source pytest_cagoule -m pytest --cagoule-select=pytest_cagoule/select.py:14 tests
 	coverage run -p --source pytest_cagoule -m pytest tests
-	coverage run -p --source pytest_cagoule -m pytest --cagoule-capture tests
 	coverage combine
 	coverage report --show-missing
 
