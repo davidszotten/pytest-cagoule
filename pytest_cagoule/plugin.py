@@ -2,10 +2,6 @@ from collections import defaultdict
 from functools import partial
 from itertools import count
 
-from coverage import coverage
-import six
-
-from .db import get_connection
 from .git_parser import get_changes
 from .select import get_node_ids
 

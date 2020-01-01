@@ -15,10 +15,10 @@ setup(
     author="David Szotten",
     author_email="davidszotten@gmail.com",
     packages=["pytest_cagoule"],
-    install_requires=["coverage", "pytest", "six",],
+    install_requires=["coverage", "pytest", "six"],
     entry_points={
-        "console_scripts": ["cagoule = pytest_cagoule.cmdline:main",],
-        "pytest11": ["cagoule = pytest_cagoule.plugin",],
+        "console_scripts": ["cagoule = pytest_cagoule.cmdline:main"],
+        "pytest11": ["cagoule = pytest_cagoule.plugin"],
     },
     license="MIT",
     classifiers=[
