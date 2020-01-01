@@ -8,14 +8,14 @@ with open(path.join(here, "README.rst")) as handle:
 
 setup(
     name="pytest-cagoule",
-    version="0.3.0",
+    version="0.4.0",
     description="Pytest plugin to only run tests affected by changes",
     long_description=long_description,
     url="https://github.com/davidszotten/pytest-cagoule",
     author="David Szotten",
     author_email="davidszotten@gmail.com",
     packages=["pytest_cagoule"],
-    install_requires=["coverage", "pytest", "six"],
+    install_requires=["coverage>=5", "pytest", "six"],
     entry_points={
         "console_scripts": ["cagoule = pytest_cagoule.cmdline:main"],
         "pytest11": ["cagoule = pytest_cagoule.plugin"],
