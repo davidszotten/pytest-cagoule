@@ -20,7 +20,7 @@ def get_next_marker(stream):
             if line == '--- /dev/null':
                 return NULL
             else:
-                filename = line[6:]
+                filename = line[4:]
                 return filename.strip()
 
         elif line.startswith('@@'):
@@ -56,7 +56,7 @@ def get_diff_changes(diff):
 
 def get_changes(*git_diff_args):
     diff = subprocess.check_output(
-        ['git', 'diff', '--unified=0'] + list(git_diff_args),
+        ['git', 'diff', '--unified=0', '--no-prefix'] + list(git_diff_args),
         universal_newlines=True,
     )
     for filename, start, end in get_diff_changes(diff):
