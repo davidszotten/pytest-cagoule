@@ -1,14 +1,18 @@
 import os
 import sqlite3
 
-DB_FILE = '.cagoule.db'
+from coverage import CoverageData
+from coverage.numbits import register_sqlite_functions
 
 
 def db_exists():
-    return os.path.exists(DB_FILE)
+    coverage_data = CoverageData()
+    return os.path.exists(coverage_data.data_filename())
 
 
 def get_connection():
-    connection = sqlite3.connect(DB_FILE)
+    coverage_data = CoverageData()
+    connection = sqlite3.connect(coverage_data.data_filename())
+    register_sqlite_functions(connection)
     connection.text_factory = bytes
     return connection
