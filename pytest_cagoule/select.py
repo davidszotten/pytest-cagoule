@@ -5,7 +5,7 @@ import re
 from coverage import numbits
 import six
 
-from .db import get_connection, db_exists
+from .db import get_connection, db_exists, get_coverage_config
 
 spec_re = re.compile(r"(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?")
 
@@ -67,7 +67,9 @@ def get_spec_filter(spec):
 
     filename, start_line, end_line = spec
 
-    filename = os.path.abspath(filename)
+    config = get_coverage_config()
+    if not config.relative_files:
+        filename = os.path.abspath(filename)
 
     lines_query, line_params = get_line_number_filter(start_line, end_line)
     query = "path = ? " + lines_query
