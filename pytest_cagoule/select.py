@@ -3,7 +3,6 @@ import os
 import re
 
 from coverage import numbits
-import six
 
 from .db import get_connection, db_exists, get_coverage_config
 
@@ -62,7 +61,7 @@ def get_query(specs):
 
 def get_spec_filter(spec):
     # TODO: find where to best do this
-    if isinstance(spec, six.string_types):
+    if isinstance(spec, str):
         spec = parse_spec(spec)
 
     filename, start_line, end_line = spec

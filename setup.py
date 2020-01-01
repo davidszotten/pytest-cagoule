@@ -15,7 +15,7 @@ setup(
     author="David Szotten",
     author_email="davidszotten@gmail.com",
     packages=["pytest_cagoule"],
-    install_requires=["coverage>=5", "pytest", "six"],
+    install_requires=["coverage>=5", "pytest"],
     entry_points={
         "console_scripts": ["cagoule = pytest_cagoule.cmdline:main"],
         "pytest11": ["cagoule = pytest_cagoule.plugin"],
