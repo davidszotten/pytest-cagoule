@@ -13,7 +13,7 @@ def main():
 
     spec = sys.argv[1]
 
-    if spec == '--git':
+    if spec == "--git":
         specs = get_changes(*sys.argv[2:])
     else:
         specs = [spec]
@@ -21,4 +21,4 @@ def main():
     node_ids = get_node_ids(specs)
 
     if node_ids:
-        print('\n'.join(node_ids))
+        print("\n".join(node_ids))

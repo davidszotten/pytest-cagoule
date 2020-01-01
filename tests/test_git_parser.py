@@ -39,17 +39,15 @@ index 0000000..0c73842
 
 
 def test_get_diff_changes_simple():
-    expected = (
-        ('README.rst', 3, 3),
-    )
+    expected = (("README.rst", 3, 3),)
     assert tuple(get_diff_changes(diff1)) == expected
 
 
 def test_get_diff_changes_multiple():
     expected = (
-        ('README.rst', 3, 3),
-        ('README.rst', 29, 33),
-        ('setup.py', 0, 0),
+        ("README.rst", 3, 3),
+        ("README.rst", 29, 33),
+        ("setup.py", 0, 0),
         # new files are ignored
     )
     assert tuple(get_diff_changes(diff2)) == expected

@@ -7,22 +7,20 @@ import six
 
 from .db import get_connection, db_exists
 
-spec_re = re.compile(
-    r'(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?'
-)
+spec_re = re.compile(r"(?P<filename>[^:]+)(:(?P<start_line>\d+))?(-(?P<end_line>\d+))?")
 
 
 def parse_spec(spec):
     match = spec_re.match(spec)
     matches = match.groupdict()
 
-    filename = matches['filename']
+    filename = matches["filename"]
 
-    start_line = matches.get('start_line')
+    start_line = matches.get("start_line")
     if start_line is not None:
         start_line = int(start_line)
 
-    end_line = matches.get('end_line')
+    end_line = matches.get("end_line")
     if end_line is not None:
         end_line = int(end_line)
 
@@ -38,11 +36,13 @@ def get_query(specs):
         params_list.append(params)
 
     if query_list:
-        clauses = '\n OR '.join(map("({})".format, query_list))
+        clauses = "\n OR ".join(map("({})".format, query_list))
         filters = """
         WHERE
         {}
-        """.format(clauses)
+        """.format(
+            clauses
+        )
     else:
         return None, None
 
@@ -54,7 +54,9 @@ def get_query(specs):
         JOIN file ON line_bits.file_id = file.id
         {}
         ORDER BY context
-    """.format(filters)
+    """.format(
+        filters
+    )
     return full_query, full_params
 
 
@@ -68,20 +70,20 @@ def get_spec_filter(spec):
     filename = os.path.abspath(filename)
 
     lines_query, line_params = get_line_number_filter(start_line, end_line)
-    query = 'path = ? ' + lines_query
+    query = "path = ? " + lines_query
     params = (filename,) + line_params
     return query, params
 
 
 def get_line_number_filter(start_line, end_line):
     if start_line is None:
-        return '', ()
+        return "", ()
 
     if end_line is None:
         end_line = start_line
 
     lines_numbits = numbits.nums_to_numbits(range(start_line, end_line + 1))
-    query = 'AND numbits_any_intersection(numbits, ?)'
+    query = "AND numbits_any_intersection(numbits, ?)"
     return query, (lines_numbits,)
 
 
@@ -98,5 +100,5 @@ def get_node_ids(specs):
     cursor.execute(query, params)
 
     contexts = [context.decode() for (context,) in cursor.fetchall()]
-    node_ids = [context.split('|')[0] for context in contexts]
+    node_ids = [context.split("|")[0] for context in contexts]
     return list(node_ids)

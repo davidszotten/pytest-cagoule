@@ -19,12 +19,19 @@ nodeid_map = defaultdict(nodeid_ids)
 def pytest_addoption(parser):
     # TODO: better help text
     parser.addoption(
-        '--cagoule-select', metavar='spec', action='store',
-        dest='cagoule_select', help='run only tests that cover the spec',
+        "--cagoule-select",
+        metavar="spec",
+        action="store",
+        dest="cagoule_select",
+        help="run only tests that cover the spec",
     )
     parser.addoption(
-        '--cagoule-git', '--diff', nargs='?', dest='cagoule_git', const='HEAD',
-        help='run only tests that cover files with git changes',
+        "--cagoule-git",
+        "--diff",
+        nargs="?",
+        dest="cagoule_git",
+        const="HEAD",
+        help="run only tests that cover files with git changes",
     )
 
 
@@ -52,18 +59,12 @@ class CagouleSelectPlugin(object):
 
 
 def pytest_configure(config):
-    spec = config.getvalue('cagoule_select')
-    if (
-        spec and
-        not config.pluginmanager.hasplugin('_cagoule_select')
-    ):
+    spec = config.getvalue("cagoule_select")
+    if spec and not config.pluginmanager.hasplugin("_cagoule_select"):
         plugin = CagouleSelectPlugin(spec=spec)
-        config.pluginmanager.register(plugin, '_cagoule_select')
+        config.pluginmanager.register(plugin, "_cagoule_select")
 
-    git_spec = config.getvalue('cagoule_git')
-    if (
-        git_spec and
-        not config.pluginmanager.hasplugin('_cagoule_select')
-    ):
+    git_spec = config.getvalue("cagoule_git")
+    if git_spec and not config.pluginmanager.hasplugin("_cagoule_select"):
         plugin = CagouleSelectPlugin(git_spec=git_spec)
-        config.pluginmanager.register(plugin, '_cagoule_select')
+        config.pluginmanager.register(plugin, "_cagoule_select")
